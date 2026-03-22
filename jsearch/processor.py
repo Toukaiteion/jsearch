@@ -257,6 +257,10 @@ class VideoProcessor:
             normalized_path = new_path if new_path else path
             normalized_videos.append((normalized_path, size))
 
+        # 初始化结果跟踪
+        successful_videos = []
+        failed_videos = []
+
         # 处理视频
         for i, (path, size) in enumerate(normalized_videos):
             logger.info(f"\n正在处理: {path} ({size}MB)")
@@ -267,6 +271,9 @@ class VideoProcessor:
                 # 检查output目录中是否存在原视频，如果存在则删除原文件
                 self._delete_original_if_exists(path)
 
+                # 记录成功的视频
+                successful_videos.append(path)
+
                 # 随机等待5-10秒后处理下一个视频
                 if i < len(normalized_videos) - 1:  # 只有当还有更多视频需要处理时才等待
                     wait_time = random.uniform(5, 10)
@@ -275,7 +282,12 @@ class VideoProcessor:
 
             except Exception as e:
                 logger.error(f"处理失败: {path}, 错误: {e}")
+                failed_videos.append(path)
                 continue
+
+        # 显示处理结果总结
+        if successful_videos or failed_videos:
+            self._display_processing_summary(successful_videos, failed_videos)
 
         # 保存确认的前缀
         self.normalizer.save_prefixes()
@@ -304,3 +316,23 @@ class VideoProcessor:
                 logger.warning(f"删除原文件失败: {original_path}, 错误: {e}")
         else:
             logger.debug(f"output目录中未找到原文件: {original_filename}")
+
+    def _display_processing_summary(self, successful_videos: List[str], failed_videos: List[str]):
+        """
+        显示处理结果总结
+
+        :param successful_videos: 成功处理的视频路径列表
+        :param failed_videos: 处理失败的视频路径列表
+        """
+        total = len(successful_videos) + len(failed_videos)
+        logger.info("\n" + "="*50)
+        logger.info("处理结果总结")
+        logger.info("="*50)
+        logger.info(f"总共处理: {total} 个视频")
+        logger.info(f"成功: {len(successful_videos)} 个")
+        for video in successful_videos:
+            logger.info(f"  ✓ {video}")
+        logger.info(f"失败: {len(failed_videos)} 个")
+        for video in failed_videos:
+            logger.info(f"  ✗ {video}")
+        logger.info("="*50)
