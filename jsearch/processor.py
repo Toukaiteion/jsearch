@@ -1,4 +1,5 @@
 """视频处理核心模块"""
+import json
 import os
 import re
 from collections import Counter
@@ -17,13 +18,53 @@ class VideoNormalizer:
     """视频文件名称规范化器"""
 
     # 番号正则模式：2-5位字母 + 可选连字符 + 3位数字
-    PATTERN = r'\b([A-Za-z]{2,5})-?(\d{3})\b'
+    PATTERN = r'([A-Za-z]{2,5})-?(\d{3})'
+    # 默认存储路径
+    DEFAULT_STORAGE_PATH = os.path.expanduser("~/.jsearch/prefixes.json")
 
-    def __init__(self):
+    def __init__(self, storage_path: str = None):
+        """
+        初始化规范化器
+
+        :param storage_path: 前缀存储文件路径
+        """
+        self.storage_path = storage_path or self.DEFAULT_STORAGE_PATH
         # 记录已解析的英文前缀及其出现次数
         self.prefix_counter: Counter = Counter()
         # 当前已确认的前缀（出现次数>=2的）
         self.confirmed_prefixes: set[str] = set()
+        self._load_prefixes()
+
+    def _load_prefixes(self):
+        """从文件加载已确认的前缀"""
+        if not os.path.exists(self.storage_path):
+            return
+
+        try:
+            with open(self.storage_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                self.confirmed_prefixes = set(data.get('confirmed_prefixes', []))
+                self.prefix_counter = Counter(data.get('prefix_counter', {}))
+            logger.info(f"加载已确认前缀: {self.confirmed_prefixes}")
+        except (json.JSONDecodeError, OSError) as e:
+            logger.warning(f"加载前缀文件失败: {e}")
+
+    def save_prefixes(self):
+        """保存已确认的前缀到文件"""
+        # 确保目录存在
+        os.makedirs(os.path.dirname(self.storage_path), exist_ok=True)
+
+        data = {
+            'confirmed_prefixes': list(self.confirmed_prefixes),
+            'prefix_counter': dict(self.prefix_counter)
+        }
+
+        try:
+            with open(self.storage_path, 'w', encoding='utf-8') as f:
+                json.dump(data, f, ensure_ascii=False, indent=2)
+            logger.info(f"保存已确认前缀: {self.confirmed_prefixes}")
+        except OSError as e:
+            logger.warning(f"保存前缀文件失败: {e}")
 
     def extract_code(self, filename: str) -> Optional[str]:
         """
@@ -223,3 +264,6 @@ class VideoProcessor:
             except Exception as e:
                 logger.error(f"处理失败: {path}, 错误: {e}")
                 continue
+
+        # 保存确认的前缀
+        self.normalizer.save_prefixes()
