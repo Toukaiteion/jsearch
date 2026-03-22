@@ -1,7 +1,9 @@
 """视频处理核心模块"""
 import json
 import os
+import random
 import re
+import time
 from collections import Counter
 from pathlib import Path
 from typing import List, Tuple, Optional
@@ -256,14 +258,49 @@ class VideoProcessor:
             normalized_videos.append((normalized_path, size))
 
         # 处理视频
-        for path, size in normalized_videos:
+        for i, (path, size) in enumerate(normalized_videos):
             logger.info(f"\n正在处理: {path} ({size}MB)")
             try:
                 processor.process(path, output_dir=self.output_dir)
                 logger.info(f"处理成功: {path} -> 输出目录: {self.output_dir}")
+
+                # 检查output目录中是否存在原视频，如果存在则删除原文件
+                self._delete_original_if_exists(path)
+
+                # 随机等待5-10秒后处理下一个视频
+                if i < len(normalized_videos) - 1:  # 只有当还有更多视频需要处理时才等待
+                    wait_time = random.uniform(5, 10)
+                    logger.info(f"等待 {wait_time:.1f} 秒后处理下一个视频...")
+                    time.sleep(wait_time)
+
             except Exception as e:
                 logger.error(f"处理失败: {path}, 错误: {e}")
                 continue
 
         # 保存确认的前缀
         self.normalizer.save_prefixes()
+
+    def _delete_original_if_exists(self, original_path: str):
+        """
+        检查output目录中是否已存在原视频，如果存在则删除原文件
+
+        :param original_path: 原始视频文件路径
+        """
+        if not os.path.exists(original_path):
+            return
+
+        # 获取原始文件名（不含路径）
+        original_filename = os.path.basename(original_path)
+
+        # 检查output目录中是否存在同名文件
+        output_path = Path(self.output_dir) / original_filename
+
+        if output_path.exists():
+            try:
+                # 删除原文件
+                os.remove(original_path)
+                logger.info(f"已删除原文件: {original_path}")
+            except OSError as e:
+                logger.warning(f"删除原文件失败: {original_path}, 错误: {e}")
+        else:
+            logger.debug(f"output目录中未找到原文件: {original_filename}")
