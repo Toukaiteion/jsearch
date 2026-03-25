@@ -243,6 +243,7 @@ class VideoProcessor:
         try:
             from jcatch.core import MediaProcessor
             from jcatch.scrapers import JavBusScraper
+            from jcatch.core.models import ProcessConfiguration
         except ImportError:
             logger.error("未找到 jcatch 库，请先安装: pip install jcatch")
             return
@@ -264,9 +265,10 @@ class VideoProcessor:
         # 处理视频
         for i, (path, size) in enumerate(normalized_videos):
             logger.info("===========================================================")
-            logger.info(f"\n正在处理: {path} ({size}MB)")
+            logger.info(f"\n正在处理: {path} ({size}MB), 处理进度: {i+1}/{len(normalized_videos)}")
             try:
-                processor.process(path, output_dir=self.output_dir, delete_source_file=True)
+                conf = ProcessConfiguration(video_path=path, output_dir=Path(self.output_dir), delete_source=True)
+                processor.process(conf)
                 logger.info(f"处理成功: {path} -> 输出目录: {self.output_dir}")
 
                 # 记录成功的视频
