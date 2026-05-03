@@ -15,6 +15,28 @@
 pip install -e .
 ```
 
+## 打包
+
+使用 PyInstaller 将项目打包为可执行文件（包含所有依赖）：
+
+```bash
+# 安装 PyInstaller
+pip install pyinstaller
+
+# 打包（包含所有隐藏依赖）
+pyinstaller --onefile --hidden-import=selenium --hidden-import=webdriver_manager \
+  --hidden-import=jcatch --hidden-import=jcatch.core --hidden-import=jcatch.scrapers \
+  --hidden-import=jcatch.core.models --add-data "jsearch:jsearch" \
+  -n jsearch jsearch/cli.py
+
+# 打包完成后，可执行文件位于 dist/jsearch
+```
+
+### 打包参数说明
+- `--onefile` - 打包成单个可执行文件
+- `--hidden-import` - 显式指定需要包含的隐藏模块（selenium, jcatch 等）
+- `--add-data` - 将 jsearch 模块打包进去
+
 ## 使用
 
 ```bash
