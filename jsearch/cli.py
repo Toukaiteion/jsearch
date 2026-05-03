@@ -95,6 +95,18 @@ def main():
     if args.verbose:
         logging.getLogger().setLevel(logging.DEBUG)
 
+    # 打印参数配置
+    print("\n" + "="*50)
+    print("参数配置:")
+    print("="*50)
+    print(f"  目录: {args.directory}")
+    print(f"  最小文件大小: {args.min_size}MB")
+    print(f"  处理数量限制: {args.limit}")
+    print(f"  输出目录: {args.output}")
+    print(f"  无头模式: {args.headless}")
+    print(f"  详细日志: {args.verbose}")
+    print("="*50 + "\n")
+
     processor = VideoProcessor(
         min_size_mb=args.min_size,
         limit=args.limit,
