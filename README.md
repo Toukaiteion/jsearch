@@ -95,7 +95,7 @@ jsearch /path/to/videos --min-size 2G --limit 5 --output ./output
 | `directory` | 搜索目录 | 必填 |
 | `-m, --min-size` | 最小文件大小 | 1G |
 | `-l, --limit` | 处理数量限制 | 3 |
-| `-o, --output` | 输出目录 | output |
+| `-o, --output` | 输出目录 | . (当前目录) |
 | `-v, --verbose` | 详细日志 | false |
 
 ## 支持的视频格式

@@ -1,6 +1,7 @@
 """命令行入口模块"""
 import argparse
 import logging
+from pathlib import Path
 from jsearch.processor import VideoProcessor
 
 # 配置日志
@@ -65,8 +66,8 @@ def main():
 
     parser.add_argument(
         "-o", "--output",
-        default="output",
-        help="输出目录 (默认: output)"
+        default=str(Path.cwd()),
+        help="输出目录 (默认: 当前目录)"
     )
 
     headless_group = parser.add_mutually_exclusive_group()
