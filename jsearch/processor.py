@@ -250,7 +250,7 @@ class VideoProcessor:
             logger.error("未找到 jcatch 库，请先安装: pip install jcatch")
             return
 
-        scraper = JavBusScraper()
+        scraper = JavBusScraper(headless=self.headless)
         processor = MediaProcessor(scraper)
 
         # 规范化文件名
@@ -269,7 +269,7 @@ class VideoProcessor:
             logger.info("===========================================================")
             logger.info(f"\n正在处理: {path} ({size}MB), 处理进度: {i+1}/{len(normalized_videos)}")
             try:
-                conf = ProcessConfiguration(video_path=path, output_dir=Path(self.output_dir), delete_source=True, headless=self.headless)
+                conf = ProcessConfiguration(video_path=path, output_dir=Path(self.output_dir), clean=True)
                 processor.process(conf)
                 logger.info(f"处理成功: {path} -> 输出目录: {self.output_dir}")
 
