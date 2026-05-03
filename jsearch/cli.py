@@ -74,8 +74,7 @@ def main():
         "-H", "--headless",
         action="store_true",
         dest="headless",
-        default=True,
-        help="无头模式 (默认: 开启)"
+        help="无头模式"
     )
     headless_group.add_argument(
         "--no-headless",
@@ -83,6 +82,8 @@ def main():
         dest="headless",
         help="关闭无头模式"
     )
+    # 设置默认值为开启无头模式
+    parser.set_defaults(headless=True)
 
     parser.add_argument(
         "-v", "--verbose",
