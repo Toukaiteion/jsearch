@@ -199,17 +199,19 @@ class VideoFinder:
 class VideoProcessor:
     """视频处理器"""
 
-    def __init__(self, min_size_mb: int = 1024, limit: int = 3, output_dir: str = "output"):
+    def __init__(self, min_size_mb: int = 1024, limit: int = 3, output_dir: str = "output", headless: bool = True):
         """
         初始化处理器
 
         :param min_size_mb: 最小文件大小（MB）
         :param limit: 处理数量限制
         :param output_dir: 输出目录
+        :param headless: 无头模式
         """
         self.min_size_mb = min_size_mb
         self.limit = limit
         self.output_dir = output_dir
+        self.headless = headless
         self.finder = VideoFinder(min_size_mb)
         self.normalizer = VideoNormalizer()
 
@@ -267,7 +269,7 @@ class VideoProcessor:
             logger.info("===========================================================")
             logger.info(f"\n正在处理: {path} ({size}MB), 处理进度: {i+1}/{len(normalized_videos)}")
             try:
-                conf = ProcessConfiguration(video_path=path, output_dir=Path(self.output_dir), delete_source=True)
+                conf = ProcessConfiguration(video_path=path, output_dir=Path(self.output_dir), delete_source=True, headless=self.headless)
                 processor.process(conf)
                 logger.info(f"处理成功: {path} -> 输出目录: {self.output_dir}")
 

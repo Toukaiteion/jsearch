@@ -69,6 +69,21 @@ def main():
         help="输出目录 (默认: output)"
     )
 
+    headless_group = parser.add_mutually_exclusive_group()
+    headless_group.add_argument(
+        "-H", "--headless",
+        action="store_true",
+        dest="headless",
+        default=True,
+        help="无头模式 (默认: 开启)"
+    )
+    headless_group.add_argument(
+        "--no-headless",
+        action="store_false",
+        dest="headless",
+        help="关闭无头模式"
+    )
+
     parser.add_argument(
         "-v", "--verbose",
         action="store_true",
@@ -83,7 +98,8 @@ def main():
     processor = VideoProcessor(
         min_size_mb=args.min_size,
         limit=args.limit,
-        output_dir=args.output
+        output_dir=args.output,
+        headless=args.headless
     )
 
     processor.process_directory(args.directory)
