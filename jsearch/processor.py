@@ -199,7 +199,7 @@ class VideoFinder:
 class VideoProcessor:
     """视频处理器"""
 
-    def __init__(self, min_size_mb: int = 1024, limit: int = 3, output_dir: str = "output", headless: bool = True):
+    def __init__(self, min_size_mb: int = 1024, limit: int = 3, output_dir: str = "output", headless: bool = True, chromedriver_path: str = None):
         """
         初始化处理器
 
@@ -207,11 +207,13 @@ class VideoProcessor:
         :param limit: 处理数量限制
         :param output_dir: 输出目录
         :param headless: 无头模式
+        :param chromedriver_path: ChromeDriver 路径
         """
         self.min_size_mb = min_size_mb
         self.limit = limit
         self.output_dir = output_dir
         self.headless = headless
+        self.chromedriver_path = chromedriver_path
         self.finder = VideoFinder(min_size_mb)
         self.normalizer = VideoNormalizer()
 
@@ -250,7 +252,7 @@ class VideoProcessor:
             logger.error("未找到 jcatch 库，请先安装: pip install jcatch")
             return
 
-        scraper = JavBusScraper(headless=self.headless)
+        scraper = JavBusScraper(headless=self.headless, chromedriver_path=self.chromedriver_path)
         processor = MediaProcessor(scraper)
 
         # 规范化文件名

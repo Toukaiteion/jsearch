@@ -92,6 +92,12 @@ def main():
         help="显示详细日志"
     )
 
+    parser.add_argument(
+        "-c", "--chromedriver-path",
+        default=None,
+        help="ChromeDriver 路径"
+    )
+
     args = parser.parse_args()
 
     if args.verbose:
@@ -106,6 +112,7 @@ def main():
     print(f"  处理数量限制: {args.limit}")
     print(f"  输出目录: {args.output}")
     print(f"  无头模式: {args.headless}")
+    print(f"  ChromeDriver 路径: {args.chromedriver_path if args.chromedriver_path else '默认'}")
     print(f"  详细日志: {args.verbose}")
     print("="*50 + "\n")
 
@@ -113,7 +120,8 @@ def main():
         min_size_mb=args.min_size,
         limit=args.limit,
         output_dir=args.output,
-        headless=args.headless
+        headless=args.headless,
+        chromedriver_path=args.chromedriver_path
     )
 
     processor.process_directory(args.directory)
