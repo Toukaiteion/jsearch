@@ -153,10 +153,11 @@ class VideoFinder:
         :param min_size_mb: 最小文件大小（MB）
         """
         self.min_size_mb = min_size_mb
+        self.normalizer = VideoNormalizer()
 
     def find_videos(self, directory: str, limit: int = 3) -> List[Tuple[str, int]]:
         """
-        查找目录下大于指定大小的视频文件
+        查找目录下大于指定大小且能提取番号的视频文件
 
         :param directory: 搜索目录
         :param limit: 返回数量限制
@@ -174,7 +175,7 @@ class VideoFinder:
             return videos
 
         for root, _, files in os.walk(dir_path):
-            if len(videos) > limit:
+            if len(videos) >= limit:
                 break
             for file in files:
                 file_path = Path(root) / file
@@ -184,8 +185,14 @@ class VideoFinder:
                 try:
                     size_mb = file_path.stat().st_size / (1024 * 1024)
                     if size_mb >= self.min_size_mb:
-                        videos.append((str(file_path), int(size_mb)))
-                    if len(videos) > limit:
+                        # 检查文件名是否能提取番号
+                        code = self.normalizer.extract_code(file_path.stem)
+                        if code:
+                            videos.append((str(file_path), int(size_mb)))
+                            logger.debug(f"匹配视频: {file_path.name} -> {code}")
+                        else:
+                            logger.debug(f"跳过无法提取番号的文件: {file_path.name}")
+                    if len(videos) >= limit:
                         print("已发现所有电影")
                         break
                 except (OSError, PermissionError) as e:
